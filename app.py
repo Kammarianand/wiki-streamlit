@@ -3,29 +3,29 @@ import requests
 from bs4 import BeautifulSoup 
 import time 
 
-st.set_page_config(page_title="WikiStream", page_icon="ℹ️")
+st.set_page_config(page_title="WikiStream", page_icon="ℹ️") 
 
 st.title("Wiki-Fetch")
 
-# Initialize session state for stop button
-if 'stop_generation' not in st.session_state:
-    st.session_state.stop_generation = False
+# Initialize session state for stopping the content generation
+if 'stop' not in st.session_state:
+    st.session_state.stop = False
 
 def magic(): 
     st.toast("woah......!🎉") 
     time.sleep(0.1) 
-    st.toast("This is not chatGPT,info is from wiki😁") 
+    st.toast("This is not chatGPT, info is from wiki😁") 
     time.sleep(0.2) 
-    st.toast("you can click on stop button👀") 
-    
-col1, col2 = st.columns([5, 1])
-with col1:
-    prompt = st.chat_input("Enter the Topic: ")
-with col2:
-    stop_button = st.button("Stop")
+    st.toast("You can click on stop button👀") 
 
+prompt = st.chat_input("Enter the Topic: ") 
+
+# Add stop button next to the chat input
+stop_button = st.button("Stop", key="stop_button")
+
+# Stop content generation when the button is pressed
 if stop_button:
-    st.session_state.stop_generation = True
+    st.session_state.stop = True
 
 def generate_link(prompt): 
     if prompt: 
@@ -37,7 +37,7 @@ link = generate_link(prompt)
 
 def generating_wiki_link(link): 
     res = requests.get(link) 
-    soup = BeautifulSoup(res.text,'html.parser') 
+    soup = BeautifulSoup(res.text, 'html.parser') 
     for sp in soup.find_all("div"): 
         try: 
             link = sp.find('a').get('href') 
@@ -51,7 +51,7 @@ def generating_wiki_link(link):
 def scraping_data(link): 
     actual_link = link 
     res = requests.get(actual_link) 
-    soup = BeautifulSoup(res.text,'html.parser') 
+    soup = BeautifulSoup(res.text, 'html.parser') 
     corpus = "" 
     for i in soup.find_all('p'): 
         corpus += i.text 
@@ -59,23 +59,20 @@ def scraping_data(link):
     corpus = corpus.strip() 
     for i in range(1,500): 
         corpus = corpus.replace('['+str(i)+']'," ") 
-    
+
+    # Generate words one by one, allowing for stop button functionality
     for i in corpus.split(): 
-        if st.session_state.stop_generation:
+        if st.session_state.stop:  # Check if stop button was pressed
+            st.write("Content generation stopped by user.")
             break
         yield i + " " 
         time.sleep(0.2) 
 
 if link: 
-    with st.container(border=True): 
+    with st.container(): 
         with st.chat_message('assistant'): 
-            message_placeholder = st.empty()
-            full_response = ""
             magic() 
-            for chunk in generating_wiki_link(link):
-                full_response += chunk
-                message_placeholder.markdown(full_response + "▌")
-            message_placeholder.markdown(full_response)
-
-# Reset stop_generation state for next run
-st.session_state.stop_generation = False
+            for word in generating_wiki_link(link):
+                st.write(word, end='')  # Print words one by one
+            st.session_state.stop = False  # Reset stop state for next prompt
+    
