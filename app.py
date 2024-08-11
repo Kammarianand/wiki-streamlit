@@ -58,12 +58,11 @@ def scraping_data(link):
         time.sleep(0.2)
 
 # Chat UI
-st.container(height=400, border=False)
 for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
         st.write(message["content"])
 
-# Input area
+# Input area and Stop button
 col1, col2 = st.columns([5, 1])
 with col1:
     prompt = st.chat_input("Enter the Topic:")
@@ -97,7 +96,9 @@ if prompt:
     
     st.session_state.chat_history.append({"role": "assistant", "content": full_response})
 
-# Reset button
+# Reset Chat button
 if st.button("Reset Chat"):
     st.session_state.chat_history = []
+    st.session_state.stop_generation = False
     st.experimental_rerun()
+    
