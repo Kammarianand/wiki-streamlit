@@ -1,11 +1,11 @@
 import streamlit as st 
- import requests 
- from bs4 import BeautifulSoup 
- import time 
+import requests 
+from bs4 import BeautifulSoup 
+import time 
   
- st.set_page_config(page_title="WikiStream", page_icon="ℹ️") 
+st.set_page_config(page_title="WikiStream", page_icon="ℹ️") 
   
- st.title("Wiki-Fetch") 
+st.title("Wiki-Fetch") 
   
   
  def magic(): 
