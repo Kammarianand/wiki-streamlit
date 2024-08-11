@@ -3,16 +3,13 @@ import requests
 from bs4 import BeautifulSoup 
 import time 
 
-st.set_page_config(page_title="WikiStream", page_icon="ℹ️", layout="wide")
+st.set_page_config(page_title="WikiStream", page_icon="ℹ️")
 
 st.title("Wiki-Fetch")
 
-# Initialize session state
+# Initialize session state for stop button
 if 'stop_generation' not in st.session_state:
     st.session_state.stop_generation = False
-
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
 
 def magic(): 
     st.toast("woah......!🎉") 
@@ -21,11 +18,22 @@ def magic():
     time.sleep(0.2) 
     st.toast("you can click on stop button👀") 
     
+col1, col2 = st.columns([5, 1])
+with col1:
+    prompt = st.chat_input("Enter the Topic: ")
+with col2:
+    stop_button = st.button("Stop")
+
+if stop_button:
+    st.session_state.stop_generation = True
+
 def generate_link(prompt): 
     if prompt: 
         return "https://www.google.com/search?q=" + prompt.replace(" ", "+") + "+wiki" 
     else: 
         return None 
+
+link = generate_link(prompt) 
 
 def generating_wiki_link(link): 
     res = requests.get(link) 
@@ -58,47 +66,16 @@ def scraping_data(link):
         yield i + " " 
         time.sleep(0.2) 
 
-# Display chat history
-st.container(height=400, border=False)
-for message in st.session_state.chat_history:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
-
-# Input area
-col1, col2 = st.columns([5, 1])
-with col1:
-    prompt = st.chat_input("Enter the Topic: ")
-with col2:
-    stop_button = st.button("Stop")
-
-if stop_button:
-    st.session_state.stop_generation = True
-
-if prompt: 
-    st.session_state.stop_generation = False
-    st.session_state.chat_history.append({"role": "user", "content": prompt})
-    
-    with st.chat_message("user"):
-        st.write(prompt)
-
-    with st.chat_message('assistant'):
-        message_placeholder = st.empty()
-        full_response = ""
-        
-        magic() 
-        link = generate_link(prompt) 
-        if link: 
-            for chunk in generating_wiki_link(link): 
-                if st.session_state.stop_generation:
-                    break
+if link: 
+    with st.container(border=True): 
+        with st.chat_message('assistant'): 
+            message_placeholder = st.empty()
+            full_response = ""
+            magic() 
+            for chunk in generating_wiki_link(link):
                 full_response += chunk
                 message_placeholder.markdown(full_response + "▌")
-        
-        message_placeholder.markdown(full_response)
-    
-    st.session_state.chat_history.append({"role": "assistant", "content": full_response})
+            message_placeholder.markdown(full_response)
 
-# Reset button
-if st.button("Reset Chat"):
-    st.session_state.chat_history = []
-    st.experimental_rerun()
+# Reset stop_generation state for next run
+st.session_state.stop_generation = False
