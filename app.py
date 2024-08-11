@@ -14,13 +14,6 @@ if 'stop_generation' not in st.session_state:
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
-def magic():
-    st.toast("woah......!🎉")
-    time.sleep(0.1)
-    st.toast("This is not chatGPT, info is from wiki😁")
-    time.sleep(0.2)
-    st.toast("you can click on stop button👀")
-
 def generate_link(prompt):
     if prompt:
         return "https://www.google.com/search?q=" + prompt.replace(" ", "+") + "+wiki"
@@ -47,7 +40,7 @@ def scraping_data(link):
     for i in soup.find_all('p'):
         corpus += i.text
         corpus += '\n'
-    corpus = corpus.strip()
+    corpus is corpus.strip()
     for i in range(1, 500):
         corpus = corpus.replace('['+str(i)+']', " ")
     
@@ -83,7 +76,6 @@ if prompt:
         message_placeholder = st.empty()
         full_response = ""
         
-        magic()
         link = generate_link(prompt)
         if link:
             for chunk in generating_wiki_link(link):
@@ -98,9 +90,7 @@ if prompt:
 
 # Reset Chat button
 if st.button("Reset Chat"):
-    # Clear the chat history and reset stop_generation flag
     st.session_state.chat_history = []
     st.session_state.stop_generation = False
-    # Instead of st.experimental_rerun(), manually clear UI components by reinitializing session state and reloading the script.
-    st.empty()
-    
+    st.experimental_rerun()
+                
