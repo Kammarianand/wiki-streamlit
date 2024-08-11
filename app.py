@@ -98,7 +98,9 @@ if prompt:
 
 # Reset Chat button
 if st.button("Reset Chat"):
+    # Clear the chat history and reset stop_generation flag
     st.session_state.chat_history = []
     st.session_state.stop_generation = False
-    st.experimental_rerun()
+    # Instead of st.experimental_rerun(), manually clear UI components by reinitializing session state and reloading the script.
+    st.empty()
     
