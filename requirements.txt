@@ -1,3 +1,5 @@
 streamlit
 bs4
 requests
+transformers
+torch
